@@ -11,7 +11,7 @@ from sqlalchemy import func, ForeignKey
 class User(SQLModel, table=True):
     __tablename__ = "users"
 
-    uid: str = Field(
+    id: str = Field(
         sa_column=Column(
             mysql.CHAR(36),
             primary_key=True,
@@ -41,4 +41,29 @@ class Frequency(str, pyEnum):
     weekly="weekly"
     bi_weekly= "bi-weekly"
     monthly= "monthly" 
+
+
+
+class Subscription(SQLModel, table=True):
+    __tablename__ = "subscriptions"
+
+    id: str = Field(
+        sa_column=Column(
+            mysql.CHAR(36),
+            primary_key=True,
+            unique=True,
+            nullable=False,
+            default=lambda: str(uuid.uuid4())
+        )
+    )
+    user_id: str = Field(
+        sa_column=Column(mysql.CHAR(36), ForeignKey("user.id"))
+    )
+    frequency: Frequency 
+    active: bool = True
+    next_delivery: datetime
+    created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
+    updated_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)))
+    cancelled_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=True))
+    user: User = Relationship(back_populates="subscriptions")
 
