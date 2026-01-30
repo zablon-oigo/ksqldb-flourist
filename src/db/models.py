@@ -67,3 +67,22 @@ class Subscription(SQLModel, table=True):
     cancelled_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=True))
     user: User = Relationship(back_populates="subscriptions")
 
+
+class Bouquet(SQLModel, table=True):
+    __tablename__ = "bouquet"
+
+    id: str = Field(
+        sa_column=Column(
+            mysql.CHAR(36),
+            primary_key=True,
+            unique=True,
+            nullable=False,
+            default=lambda: str(uuid.uuid4())
+        )
+    )
+    name: str
+    description: str 
+    price: float
+    is_available: bool =True 
+    created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
+    
