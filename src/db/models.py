@@ -35,6 +35,33 @@ class User(SQLModel, table=True):
         return f"<User {self.username}>"
     
 
+class UserProfile(SQLModel, table=True):
+    __tablename__ = "user_profiles"
+
+    id: str = Field(
+        sa_column=Column(
+            mysql.CHAR(36),
+            primary_key=True,
+            default=lambda: str(uuid.uuid4())
+        )
+    )
+    user_id: str = Field(
+        foreign_key="users.id",
+        unique=True,     
+        index=True
+    )
+    avatar_url: Optional[str] = Field(
+        sa_column=Column(mysql.VARCHAR(255), nullable=True)
+    )
+    bio: Optional[str] = Field(
+        sa_column=Column(mysql.VARCHAR(500), nullable=True)
+    )
+    phone_number: Optional[str] = Field(
+        sa_column=Column(mysql.VARCHAR(20), nullable=True)
+    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    user: "User" = Relationship(back_populates="profile")
 
 
 class Frequency(str, pyEnum):
