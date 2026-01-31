@@ -30,6 +30,7 @@ class User(SQLModel, table=True):
     created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
     updated_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)))
     subscriptions: List["Subscription"] = Relationship(back_populates="user")
+    profile: Optional["UserProfile"] = Relationship(back_populates="user")
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -119,3 +120,5 @@ class Subscription(SQLModel, table=True):
 
     user: User = Relationship(back_populates="subscriptions")
     bouquet: Bouquet = Relationship(back_populates="subscriptions")
+
+
