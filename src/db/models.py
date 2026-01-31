@@ -29,6 +29,7 @@ class User(SQLModel, table=True):
     password_hash: str = Field(sa_column=Column(mysql.VARCHAR(255), nullable=False))
     created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
     updated_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)))
+    subscriptions: List["Subscription"] = Relationship(back_populates="user")
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -37,10 +38,34 @@ class User(SQLModel, table=True):
 
 
 class Frequency(str, pyEnum):
-    daily="daily"
-    weekly="weekly"
-    bi_weekly= "bi-weekly"
-    monthly= "monthly" 
+    daily = "daily"
+    weekly = "weekly"
+    bi_weekly = "bi-weekly"
+    monthly = "monthly"
+
+
+
+class Bouquet(SQLModel, table=True):
+    __tablename__ = "bouquets"
+
+    id: str = Field(
+        sa_column=Column(
+            mysql.CHAR(36),
+            primary_key=True,
+            default=lambda: str(uuid.uuid4())
+        )
+    )
+
+    name: str
+    description: str
+    price: float                     
+    subscription_fee: float = 0.0     
+    image_url: Optional[str] = None
+    is_available: bool = Field(default=True)
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+    subscriptions: List["Subscription"] = Relationship(back_populates="bouquet")
 
 
 
@@ -51,42 +76,19 @@ class Subscription(SQLModel, table=True):
         sa_column=Column(
             mysql.CHAR(36),
             primary_key=True,
-            unique=True,
-            nullable=False,
             default=lambda: str(uuid.uuid4())
         )
     )
-    user_id: str = Field(
-        sa_column=Column(mysql.CHAR(36), ForeignKey("user.id"))
-    )
-    frequency: Frequency 
-    active: bool = True
+
+    user_id: str = Field(foreign_key="users.id")
+    bouquet_id: str = Field(foreign_key="bouquets.id")
+
+    frequency: Frequency
     next_delivery: datetime
-    created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
-    updated_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc)))
-    cancelled_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=True))
+
+    active: bool = Field(default=True)
+    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    cancelled_at: Optional[datetime] = None
+
     user: User = Relationship(back_populates="subscriptions")
-
-
-class Bouquet(SQLModel, table=True):
-    __tablename__ = "bouquet"
-
-    id: str = Field(
-        sa_column=Column(
-            mysql.CHAR(36),
-            primary_key=True,
-            unique=True,
-            nullable=False,
-            default=lambda: str(uuid.uuid4())
-        )
-    )
-    name: str
-    description: str 
-    price: float
-    subscription_fee: float = 0.0
-    image_url: Optional[str] = None 
-    is_available: bool =True 
-    created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
-    subscriptions: List["Subscription"] = Relationship(back_populates="bouquet")
-    
-    
+    bouquet: Bouquet = Relationship(back_populates="subscriptions")
