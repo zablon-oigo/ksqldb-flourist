@@ -83,6 +83,10 @@ class Bouquet(SQLModel, table=True):
     name: str
     description: str 
     price: float
+    subscription_fee: float = 0.0
+    image_url: Optional[str] = None 
     is_available: bool =True 
     created_at: datetime = Field(sa_column=Column(mysql.DATETIME, nullable=False, default=datetime.now(timezone.utc)))
+    subscriptions: List["Subscription"] = Relationship(back_populates="bouquet")
+    
     
