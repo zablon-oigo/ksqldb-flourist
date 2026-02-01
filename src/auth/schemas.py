@@ -25,3 +25,7 @@ class UserCreateModel(BaseModel):
         }
     }
 
+
+class UserLoginModel(BaseModel):
+    email: EmailStr
+    password: str
