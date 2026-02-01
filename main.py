@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Header, status, Request
 from typing import Optional
 from contextlib import asynccontextmanager
-
+from  src.db.main import initdb
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -10,8 +10,11 @@ async def lifespan(app: FastAPI):
     await initdb()
     yield
     print("Server is stopping...")
-app= FastAPI()
 
+
+app= FastAPI(
+    lifespan=lifespan
+)
 
 
 @app.get("/health")
