@@ -29,3 +29,21 @@ class UserCreateModel(BaseModel):
 class UserLoginModel(BaseModel):
     email: EmailStr
     password: str
+
+
+
+
+class UserModel(BaseModel):
+    id: uuid.UUID
+    username: str
+    email: str
+    first_name: str
+    last_name: str
+    is_verified: bool
+    password_hash: str = Field(exclude=True)
+    created_at: datetime
+    updated_at: datetime  
+
+    model_config={
+        "form_attributes": True
+    }
