@@ -15,4 +15,8 @@ class UserService:
     async def user_exists(self, email: str, session: AsyncSession) -> bool:
         user = await self.get_user_by_email(email, session)
         return user is not None
-
+    
+    async def get_all_users(self, session: AsyncSession):
+        result = await session.exec(select(User))
+        users = result.scalars().all()
+        return users
