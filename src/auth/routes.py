@@ -68,3 +68,39 @@ async def create_user_account(
     }
 
 
+
+@auth_router.post("/login", status_code=status.HTTP_200_OK)
+async def login_users(
+    login_data: UserLoginModel, 
+    session: AsyncSession = Depends(get_session)
+):
+    email = login_data.email.lower()
+    password = login_data.password
+
+    user = await user_service.get_user_by_email(email, session)
+    if not user or not verify_password(password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    access_token = create_access_token(
+        user_data={"email": user.email, "user_uid": str(user.uid)}
+    )
+    refresh_token = create_access_token(
+        user_data={"email": user.email, "user_uid": str(user.uid)},
+        refresh=True,
+        expiry=timedelta(days=REFRESH_TOKEN_EXPIRY_DAYS),
+    )
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "message": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "user": {"email": user.email, "uid": str(user.uid)},
+        }
+    )
+
+
