@@ -182,3 +182,18 @@ async def get_all_users(
 ):
     users = await user_service.get_all_users(session)
     return users or []
+
+
+
+@auth_router.delete("/user/{user_uid}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user_uid: str, 
+    _: bool = Depends(admin_checker), 
+    session: AsyncSession = Depends(get_session)
+):
+    deleted = await user_service.delete_user(user_uid, session)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="User not found")
+    return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+
+
