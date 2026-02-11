@@ -197,3 +197,8 @@ async def delete_user(
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
 
 
+@auth_router.get("/me", response_model=UserBooksModel)
+async def me(
+    user=Depends(get_current_user), _: bool = Depends(role_checker)
+):
+    return user
