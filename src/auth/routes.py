@@ -173,3 +173,12 @@ async def reset_account_password(
         content={"message": "Error occured during password reset."},
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
+
+
+@auth_router.get("/all-users", response_model=list[UserModel])
+async def get_all_users(
+    _: bool = Depends(admin_checker), 
+    session: AsyncSession = Depends(get_session)
+):
+    users = await user_service.get_all_users(session)
+    return users or []
