@@ -55,3 +55,10 @@ class AccessTokenBearer(TokenBearer):
             raise AccessTokenRequired("Expected an access token, not a refresh token")
 
 
+class RefreshTokenBearer(TokenBearer):
+
+    def verify_token_data(self, token_data: dict) -> None:
+        if not token_data.get("refresh", False):
+            raise RefreshTokenRequired("Expected a refresh token, not an access token")
+
+
