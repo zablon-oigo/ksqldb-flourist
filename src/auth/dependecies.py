@@ -48,3 +48,10 @@ class TokenBearer(HTTPBearer):
         raise NotImplementedError("Override this method in child classes")
 
 
+class AccessTokenBearer(TokenBearer):
+
+    def verify_token_data(self, token_data: dict) -> None:
+        if token_data.get("refresh", False):
+            raise AccessTokenRequired("Expected an access token, not a refresh token")
+
+
