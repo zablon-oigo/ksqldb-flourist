@@ -62,3 +62,16 @@ class RefreshTokenBearer(TokenBearer):
             raise RefreshTokenRequired("Expected a refresh token, not an access token")
 
 
+async def get_current_user(
+    token_details: dict = Depends(AccessTokenBearer()),
+    session: AsyncSession = Depends(get_session),
+) -> User:
+    user_email = token_details["user"]["email"]
+
+    user = await user_service.get_user_by_email(user_email, session)
+    if not user:
+        raise UserNotFound(f"User with email {user_email} not found")
+
+    return user
+
+
